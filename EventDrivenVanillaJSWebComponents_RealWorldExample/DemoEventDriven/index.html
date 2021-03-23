@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo 2.0 - Event Driven Example</title>
+</head>
+<body>
+    <controller-for-my-web-component>
+        <my-web-component>Hello World</my-web-component>
+    </controller-for-my-web-component>
+    <script>
+        // *********************** controllerForMyWebComponent ***********************
+        const controllerForMyWebComponent = class extends HTMLElement {
+            constructor(){
+                super()
+                console.log('Hello controllerForMyWebComponent Constructor')
+
+                this.getReadMeListener = event => {
+                    // answer with event
+                    this.dispatchEvent(new CustomEvent('readMe', {
+                        detail: {
+                            fetch: fetch('../../README.md').then(response => {
+                                if (response.status >= 200 && response.status <= 299) return response.text()
+                                throw new Error(response.statusText)
+                            })
+                        },
+                        bubbles: true,
+                        cancelable: true,
+                        composed: true
+                    }))
+                }
+            }
+            connectedCallback(){
+                console.log('Hello controllerForMyWebComponent connectedCallback')
+                this.addEventListener('getReadMe', this.getReadMeListener)
+            }
+            disconnectedCallback(){
+                console.log('Hello controllerForMyWebComponent disconnectedCallback')
+                this.removeEventListener('getReadMe', this.getReadMeListener)
+            }
+        }
+        customElements.define('controller-for-my-web-component', controllerForMyWebComponent)
+
+        // *********************** myWebComponent ***********************
+        const myWebComponent = class extends HTMLElement {
+            constructor(){
+                super()
+                console.log('Hello myWebComponent Constructor')
+                this.counter = 0
+
+                this.readMeListener = event => {
+                    event.detail.fetch.then(text => this.innerHTML = text)
+                }
+            }
+            connectedCallback(){
+                console.log('Hello myWebComponent connectedCallback')
+                this.counter++
+                this.innerHTML = /* html */`
+                    <p>
+                        my-web-component is connected to the dom <span style="font-weight: bold;">${this.counter} times</span>
+                    </p>
+                `
+                document.body.addEventListener('readMe', this.readMeListener)
+                setTimeout(() => this.dispatchEvent(new CustomEvent('getReadMe', {
+                    bubbles: true,
+                    cancelable: true,
+                    composed: true
+                })), 5000)
+            }
+            disconnectedCallback(){
+                console.log('Hello myWebComponent disconnectedCallback')
+                document.body.removeEventListener('readMe', this.readMeListener)
+            }
+        }
+        customElements.define('my-web-component', myWebComponent)
+    </script>
+</body>
+</html>

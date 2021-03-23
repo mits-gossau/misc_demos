@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo 1.0 - Web  Component Example</title>
+</head>
+<body>
+    <my-web-component>Hello World</my-web-component>
+    <script>
+        const myWebComponent = class extends HTMLElement {
+            constructor(){
+                super()
+                console.log('Hello Constructor')
+                this.counter = 0
+            }
+            connectedCallback(){
+                console.log('Hello connectedCallback')
+                this.counter++
+                this.innerHTML = /* html */`
+                    <p>
+                        my-web-component is connected to the dom <span style="font-weight: bold;">${this.counter} times</span>
+                    </p>
+                `
+            }
+            disconnectedCallback(){
+                console.log('Hello disconnectedCallback')
+            }
+        }
+        setTimeout(() => customElements.define('my-web-component', myWebComponent), 5000)
+        /*
+            Demo@console
+                1. add an other my-web-component node
+                2. store as global then remove and append from/to document.body
+        */
+    </script>
+</body>
+</html>
