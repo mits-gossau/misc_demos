@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo 1.0 - Web  Component Example</title>
+</head>
+<body>
+    <my-web-component>Hello World</my-web-component>
+    <script>
+        const myWebComponent = class extends HTMLElement {
+            constructor(){
+                super()
+                /* demo step 1 attachShadow */
+                self.step1 = () => console.log(this.attachShadow({ mode: 'open' }))
+                /* demo step 2 move child */
+                self.step2 = () => this.shadowRoot.appendChild(this.children[0])
+                /* demo step 3 add style */
+                self.step3 = () => {
+                    this.shadowRoot.innerHTML += /* html */`
+                        <style>
+                            .green {
+                                color: var(--color, blue);
+                            }
+                        </style>
+                    `
+                }
+            }
+            connectedCallback(){
+                this.innerHTML = /* html */`
+                    <p>my-web-component is connected to the <span class="green">DOM</span></p>
+                `
+            }
+        }
+        customElements.define('my-web-component', myWebComponent)
+    </script>
+    <style>
+        /*
+        html {
+            --color: pink;
+        }
+        */
+        .green {
+            color: green;
+            font-weight: bold;
+        }
+    </style>
+</body>
+</html>
