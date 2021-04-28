@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo 2.2 - Templates and Slots Example</title>
+    <style>
+        /* styling elements outside the Shadow DOM */
+        h2 {
+            color: blue;
+        }
+
+        my-web-component h2 {
+            color: purple;
+        }
+    </style>
+</head>
+<body>
+    <h1>Templates and Slots Demo</h1>
+    <my-web-component>
+        <header slot="header"><!-- named slot -->
+            <h2>Example</h2>
+        </header>
+        <section><!-- default -->
+            <h3>What to detect in this Demo</h3>
+            <ol>
+                <li>Use Templates with a Web Component & Shadow DOM</li>
+                <li>Use Slots: named, default, fallback content</li>
+                <li>Styling with slots (inside/outside Shadow DOM)</li>
+                <li>JS Shadow DOM API Utilities to work with Slots</li>
+            </ol>
+        </section>
+        <a href="#tag1" slot="tag">Tag 1</a>
+        <a href="#tag2" slot="tag">Tag 2</a>
+        <a href="#tag3" slot="tag">Tag 3</a>
+    </my-web-component>
+    <template id="slot-template">
+        <style>
+            :host {
+                display: block;
+            }
+
+            /*
+             * style slotted elements - elements that are inserted with a slot
+             * first-level elements only
+             */
+            ::slotted(*) {
+                color: grey;
+            }
+
+            ::slotted([slot="header"]) {
+                border-bottom: 1px solid black;
+                margin-bottom: 30px;
+                color:orangered;
+            }
+
+            ::slotted(section) {
+                color: black;
+            }
+
+            /* it isn't possible to style elements outside of the shadowDOM */
+            h2 {
+                color: red;
+            }
+
+            /* explicit styling of inserted elements ---------------------------------------- */
+            #tag::slotted(a) {
+                display: inline-block;
+                margin-right: 5px;
+            }
+
+            #tag::slotted(a:hover) {
+                color: orangered;
+            }
+
+        </style>
+        <article>
+            <slot name="header"></slot> <!-- named slot -->
+            <slot>Fallback Content</slot> <!-- default -->
+            <footer>
+                <slot id="tag" name="tag"></slot> <!-- named slot -->
+            </footer>
+        </article>
+    </template>
+    <script>
+        const myWebComponent = class extends HTMLElement {
+            constructor(){
+                super()
+
+                this.attachShadow({mode: 'open'})
+
+                this.useTemplate()
+
+                this.listeners()
+            }
+
+            useTemplate() {
+                // 1. select Template
+                const template = document.getElementById('slot-template')
+
+                // 2. get & clone (for reusability) the Content Node
+                // Node.cloneNode([deep])
+                const templateContent = template.content.cloneNode(true)
+
+                // 3. add it to the Shadow DOM
+                this.shadowRoot.appendChild(templateContent)
+            }
+
+            listeners() {
+                this.onChangeTag = (e) => {
+                    console.log('Slot Change Target:', e.target)
+                }
+
+                this.onClickTag = (e) => {
+                    if (e.target.slot === this.tagSlot.name) {
+                        console.log('Slot Name: ', e.target.slot)
+                        console.log('Slot Tag: ', e.target.assignedSlot)
+                    }
+                }
+            }
+
+            connectedCallback() {
+                this.tagSlot.addEventListener('slotchange', this.onChangeTag)
+                this.tags.forEach(tag => tag.addEventListener('click', this.onClickTag))
+            }
+
+            disconnectedCallback() {
+                this.tagSlot.removeEventListener('slotchange', this.onChangeTag)
+                this.tags.forEach(tag => tag.removeEventListener('click', this.onClickTag))
+            }
+
+            get tagSlot() {
+                return this.shadowRoot.querySelector('slot[name=tag]')
+            }
+
+            get tags() {
+                return this.tagSlot?.assignedNodes({flatten: true})
+            }
+        }
+
+        customElements.define('my-web-component', myWebComponent)
+    </script>
+</body>
+</html>
