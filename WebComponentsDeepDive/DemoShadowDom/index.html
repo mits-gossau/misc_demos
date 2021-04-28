@@ -3,7 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Demo 1.0 - Web  Component Example</title>
+    <style>
+        /*
+        html {
+            --color: pink;
+        }
+        */
+        .green {
+            color: green;
+            font-weight: bold;
+        }
+    </style>
+    <title>Demo 2.1 - Web  Component Example</title>
 </head>
 <body>
     <my-web-component>Hello World</my-web-component>
@@ -34,16 +45,5 @@
         }
         customElements.define('my-web-component', myWebComponent)
     </script>
-    <style>
-        /*
-        html {
-            --color: pink;
-        }
-        */
-        .green {
-            color: green;
-            font-weight: bold;
-        }
-    </style>
 </body>
 </html>
