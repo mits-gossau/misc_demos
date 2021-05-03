@@ -4,11 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        /*
-        html {
-            --color: pink;
-        }
-        */
         .green {
             color: green;
             font-weight: bold;
@@ -17,6 +12,13 @@
     <title>Demo 2.1 - Web  Component Example</title>
 </head>
 <body>
+    <ol>
+        <li><button onclick="self.step1()">attachShadow</button></li>
+        <li><button onclick="self.step2()">appendChild</button></li>
+        <li><button onclick="self.step3()">add style to shadowDom with --color as .green color value with fallback blue</button></li>
+        <li><button onclick="self.step4()">add variable definition to document body</button></li>
+    </ol>
+    <hr />
     <my-web-component>Hello World</my-web-component>
     <script>
         const myWebComponent = class extends HTMLElement {
@@ -35,6 +37,15 @@
                             }
                         </style>
                     `
+                }
+                self.step4 = () => {
+                    const style = document.createElement('style')
+                    style.textContent = `
+                        html {
+                            --color: pink;
+                        }
+                    `
+                    document.body.appendChild(style)
                 }
             }
             connectedCallback(){
