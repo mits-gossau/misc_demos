@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo 2.3 - Life cycle callbacks</title>
+</head>
+<body>
+    <lifecycle-demo></lifecycle-demo>
+    <!-- <iframe frameborder="0" width="100%" height="500px" style="background-color: grey;"></iframe> -->
+    <script>
+        const template = document.createElement('template')
+
+        template.innerHTML = /* html */`
+                    <style>
+                        :host{
+                            width: 100vw;
+                            height: 100px;
+                            display: flex;
+                            justify-content: center;
+                            align-items: center;
+                            transition: all 1s;
+
+                        }
+                    </style>
+                    <form id="attributeChange">
+                        <input name="newVal"></label>
+                        <button type="submit">Submit</button>
+                    </form>`
+                
+        class Lifecycle extends HTMLElement {
+            
+            static get observedAttributes() {
+                return ['attribute1']
+            }
+
+            constructor() {
+                super()
+                console.log('constructor')
+
+                this.setAttributes = (e) => {
+                    e.preventDefault()
+                    const newVal = this.shadow.querySelector('input[name="newVal"]').value
+                    this.setAttribute('attribute1', newVal )
+                }
+
+                this.shadow = this.attachShadow({ mode: 'open' })
+                const shadowRoot = this.shadow.appendChild(template.content.cloneNode(true))
+            }
+
+            connectedCallback() {
+                    console.log('connectedCallback')
+                    this.shadow.querySelector('#attributeChange').addEventListener('submit', this.setAttributes)
+                }
+
+            disconnectedCallback() {
+                    console.log('disconnectedCallback')
+                    this.shadow.querySelector('#attributeChange').removeEventListener('submit', this.setAttributes)
+
+                }
+
+            attributeChangedCallback(name, oldValue, newValue) {
+                    console.log('attributeChangedCallback: ', name, oldValue, newValue)
+                    this.shadow.querySelector('input[name="newVal"]').value = newValue
+
+                }
+
+            adoptedCallback() {
+                    console.log('adoptedCallback')
+
+                    const style = document.createElement('style')
+                    style.innerHTML= `:host {
+                        background-color: red;
+                    } `
+                    this.shadow.appendChild(style)
+                    setTimeout(() => {this.shadow.removeChild(style)}, 2000)
+                }
+
+        }
+
+        customElements.define('lifecycle-demo', Lifecycle)
+    </script>
+</body>
+</html>
